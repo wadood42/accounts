@@ -1,0 +1,115 @@
+extend schema
+	@link(
+		url: "https://specs.apollo.dev/federation/v2.0"
+		import: ["@key", "@shareable"]
+	)
+
+interface MutationResponse {
+	code: Int!
+	success: Boolean!
+	message: String!
+}
+
+type AccountResponse implements GetResponse {
+	code: Int!
+	success: Boolean!
+	message: String!
+	account: Account
+}
+type SigninResponse {
+	code: Int!
+	success: Boolean!
+	message: String!
+	token: String
+	account: Account
+}
+type Account @key(fields: "account_id") {
+	account_id: String
+	"The email address for a given account"
+	email: String
+	"The passwrod for a given account "
+	password: String
+	"The Date when account was created"
+	created_at: String
+	profile: Profile
+}
+
+type Profile {
+	profile_id: ID
+	first_name: String
+	last_name: String
+	age: Int
+	gender: String
+	job: String
+	description: String
+	profile_image_url: String
+	account_id: ID
+	created_at: String
+	address: Address
+}
+type Address {
+	country: String
+	state: String
+	city: String
+}
+
+interface GetResponse {
+	code: Int!
+	success: Boolean!
+	message: String!
+	account: Account
+}
+type SignupResponse implements MutationResponse {
+	"Code is a string represents the status for the operation"
+	code: Int!
+	"The success is a boolean, represents whether a given operation was a success or not"
+	success: Boolean!
+	"a short message describing what happened"
+	message: String!
+	"The JWT token, after a successful signup"
+	token: String
+	"The signup account"
+	account: Account
+}
+
+input SignupParams {
+	"The email address for signing up"
+	email: String
+	"The password for an account"
+	password: String
+}
+
+type UpdateAccountResponse implements MutationResponse {
+	code: Int!
+	success: Boolean!
+	message: String!
+	profile: Profile
+}
+"represents the data to update the account"
+input UpdateAccountParams {
+	first_name: String
+	last_name: String
+	age: Int
+	gender: String
+	job: String
+	description: String
+	profile_image_url: String
+	country: String
+	state: String
+	city: String
+}
+input SigninParams {
+	email: String!
+	password: String!
+}
+
+type Query {
+	account(account_id: String!): AccountResponse!
+}
+
+type Mutation {
+	"This mutation takes email and password and responses with an account and token"
+	signup(data: SignupParams!): SignupResponse!
+	signin(data: SigninParams): SigninResponse!
+	updateAccount(data: UpdateAccountParams!): UpdateAccountResponse!
+}

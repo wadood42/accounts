@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  account_id String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email      String    @unique @db.VarChar(255)
+  password   String    @db.VarChar(255)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  profile    Profile?  @relation("accountToprofile")
+
+  @@map("accounts")
+}
+
+model Profile {
+  profile_id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  first_name        String?   @db.VarChar(50)
+  last_name         String?   @db.VarChar(50)
+  age               Int?
+  gender            String?   @db.VarChar(50)
+  profile_image_url String?   @db.VarChar(255)
+  job               String?   @db.VarChar(255)
+  description       String?
+  account_id        String    @unique @db.Uuid
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  account           Account   @relation("accountToprofile", fields: [account_id], references: [account_id], onDelete: NoAction, onUpdate: NoAction)
+  address           Address?  @relation("addressToProfile")
+
+  @@map("profiles")
+}
+
+model Address {
+  address_id String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  country    String?   @db.VarChar(50)
+  state      String?   @db.VarChar(50)
+  city       String?   @db.VarChar(50)
+  profile_id String    @unique @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  profile    Profile   @relation("addressToProfile", fields: [profile_id], references: [profile_id])
+
+  @@map("addresses")
+}
